@@ -1,5 +1,6 @@
 #PyGamePaintProject
 from pygame import *
+import pygame
 width,height=1400,800
 screen=display.set_mode((width,height))
 RED=(255,0,0)
@@ -14,10 +15,12 @@ VALBLUE=(2,181,160)
 bg=image.load("assets/graphics/bg.jpg")
 screen.blit(bg, (-80, -10))
 
+draw.rect(screen,VALBLUE,(880,40,55,55))
+draw.rect(screen,VALBLUE,(880+55+5,40,55,55))
 #colours
 draw.rect(screen,VALBLUE,(75,40,800,55))
 blackRect=draw.rect(screen,BLACK,(80+75,50,20,20))
-redRect=draw.rect(screen,RED,(100+75,50,20,20))
+#redRect=draw.rect(screen,RED,())
 orangeRect=draw.rect(screen,ORANGE,(120+75,50,20,20))
 greenRect=draw.rect(screen,GREEN,(140+75,50,20,20))
 blueRect=draw.rect(screen,BLUE,(160+75,50,20,20))
@@ -36,13 +39,23 @@ filledRecticon=transform.scale((image.load("assets/graphics/filledRect.png")),(4
 unfilledRecticon=transform.scale((image.load("assets/graphics/unfilledRect.png")),(37,37))
 filledEllipseicon=transform.scale((image.load("assets/graphics/filledEllipse.png")),(40,40))
 unfilledEllipseicon=transform.scale((image.load("assets/graphics/unfilledEllipse.png")),(40,40))
+saveIcon=transform.scale((image.load("assets/graphics/save.png")),(55,55))
+loadIcon=transform.scale((image.load("assets/graphics/load.png")),(55,55))
+logo=transform.scale((image.load("assets/graphics/logo.png")),(50,50))
+palette=transform.scale((image.load("assets/graphics/palette.jpg")),(600,40))
+screen.blit(saveIcon,(880,40))
+screen.blit(loadIcon,(880+55+5,40))
+screen.blit(logo,(15,40))#app logo
+pygame.display.set_icon(logo)
+pygame.display.set_caption('ValPaint')
 #rect loading ----- convert to >>for i in range<< for code efficiency
 
 pencilRect=Rect(20,100,40,40)
 eraserRect=Rect(20,150,40,40)
 paintRect=Rect(20,200,40,40)
 canvasRect=Rect(75,100,1000,675)
-paletteRect=Rect(20,50,60,20) #3*20=60 width
+paletteRect=Rect(100+75,50,600,40) #3*20=60 width
+screen.blit(palette,paletteRect)
 filledRect=Rect(20,250,40,40)
 unfilledRect=Rect(20,300,40,40)
 filledEllipse=Rect(20,350,40,40)
@@ -60,6 +73,8 @@ col=BLACK
 bgcol=WHITE
 radius=10
 draw.rect(screen,WHITE,canvasRect)
+screenCap=screen.subsurface(canvasRect).copy()
+
 while running:
     for evt in event.get():
         if evt.type==QUIT:
@@ -68,17 +83,44 @@ while running:
             if evt.button==1:#left click
                     sx,sy=evt.pos #getting the STARTING x and y pos
                     print(sx,sy)
+   
+        if evt.type==MOUSEBUTTONUP:
+            if tool=="filledRect":
+                screen.set_clip(canvasRect)
+                screen.blit(screenCap,canvasRect)
+                draw.rect(screen,col,(sx,sy,mx-sx,my-sy))#.normalize() somehow
+                screenCap=screen.subsurface(canvasRect).copy()
+                screen.set_clip(None)
+            if tool=="pencil":
+                screen.set_clip(canvasRect)
+                draw.line(screen,col,(oldmx,oldmy),(mx,my))
+                screenCap=screen.subsurface(canvasRect).copy()
+                screen.set_clip(None)
+            if tool=="unfilledRect":
+                screen.set_clip(canvasRect)
+                screen.blit(screenCap,canvasRect)
+                draw.rect(screen,col,(sx,sy,mx-sx,my-sy),5)
+                screenCap=screen.subsurface(canvasRect).copy()
+                screen.set_clip(None)
+            if tool=="filledEllipse":
+                screen.set_clip(canvasRect)
+                screen.blit(screenCap,canvasRect)
+                draw.ellipse(screen, col,(sx,sy,mx-sx,my-sy))
+                screenCap=screen.subsurface(canvasRect).copy()
+                screen.set_clip(None)
+            
+            
+                
                        
     mx,my=mouse.get_pos()#getting the current mx and my
     mb=mouse.get_pressed()
-
     #drawing all tools
     for rects in range(len(tools)):
         draw.rect(screen,VALBLUE,tools[rects])
     screen.blit(pencilicon,(22,103))
     screen.blit(erasericon,(22,152))
-    draw.rect(screen,col,(20+75,47,40,40))
-    draw.rect(screen,BLACK,(20+75,47,40,40),2)
+    draw.rect(screen,col,(20+75,47,40,40))#colour picker preview
+    draw.rect(screen,BLACK,(20+75,47,40,40),2)#outline for preview
     screen.blit(paintIcon,(paintRect))
     screen.blit(vstamp,(5,445,40,40))
     screen.blit(filledRecticon,(filledRect))
@@ -96,16 +138,8 @@ while running:
            tool="pencil"
         if eraserRect.collidepoint(mx,my):
            tool="eraser"
-        if redRect.collidepoint(mx,my):
-            col=RED
         if blackRect.collidepoint(mx,my):
             col=BLACK
-        if greenRect.collidepoint(mx,my):
-            col=GREEN
-        if blueRect.collidepoint(mx,my):
-            col=BLUE
-        if orangeRect.collidepoint(mx,my):
-            col=ORANGE
         if whiteRect.collidepoint(mx,my):
             col=WHITE
         if paintRect.collidepoint(mx,my):
@@ -150,8 +184,14 @@ while running:
         draw.rect(screen,BLUE,tools[6],2)
     if tool=="stampOne":
         draw.rect(screen,BLUE,tools[7],2)
-    
-
+    if tool=="stampTwo":
+        draw.rect(screen,BLUE,tools[8],2)
+    if tool=="stampThree":
+        draw.rect(screen,BLUE,tools[9],2)
+    if tool=="stampFour":
+        draw.rect(screen,BLUE,tools[10],2)
+    if tool=="stampFive":
+        draw.rect(screen,BLUE,tools[11],2)
     #use the tool
     if canvasRect.collidepoint(mx,my) and mb[0]:
        screen.set_clip(canvasRect)
@@ -162,23 +202,24 @@ while running:
        if tool=="paintbucket":
            screen.fill(col,canvasRect)
        if tool=="filledRect":
-           draw.rect(screen,col,(sx,sy,mx,my))#===incorrect tool function>>>fix when possible
+           draw.rect(screen,col,(sx,sy,mx-sx,my-sy))
        if tool=="unfilledRect":
-           draw.rect(screen,col,(sx,sy,mx,my),2)#===incorrect tool function>>>fix when possible
+           draw.rect(screen,col,(sx,sy,mx-sx,my-sy),5)
        if tool=="filledEllipse":
-           draw.ellipse(screen, col,(sx,sy,mx,my))
+           screen.fill(WHITE)
+           draw.ellipse(screen, col,(sx,sy,mx-sx,my-sy))
        if tool=="unfilledEllipse":
            draw.ellipse(screen,col,(sx,sy,mx,my),2)
        if tool=="stampOne":
-           screen.blit(vstamp,(mx,my))
+           screen.blit(vstamp,(mx-35,my-20))
        if tool=="stampTwo":
-           screen.blit(jstamp,(mx,my))
+           screen.blit(jstamp,(mx-20,my-20))
        if tool=="stampThree":
-           screen.blit(rstamp,(mx,my))
+           screen.blit(rstamp,(mx-20,my-20))
        if tool=="stampFour":
-           screen.blit(ostamp,(mx,my))
+           screen.blit(ostamp,(mx-20,my-20))
        if tool=="stampFive":
-           screen.blit(kstamp,(mx,my))
+           screen.blit(kstamp,(mx-20,my-20))
         
        screen.set_clip(None)#only the canvas area can be 'updated'
     print("tool=",tool)
