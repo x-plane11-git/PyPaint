@@ -48,6 +48,8 @@ redoIcon = transform.scale((image.load("assets/graphics/redo.png")), (40, 40))
 logo = transform.scale((image.load("assets/graphics/logo.png")), (50, 50))
 palette = transform.scale((image.load("assets/graphics/palette.jpg")), (600, 41))
 lineIcon = transform.scale((image.load("assets/graphics/line.png")),(33,33))
+valpaint=transform.scale((image.load("assets/graphics/valpaint.png")),(760,480))
+screen.blit(valpaint,(847,-190))
 screen.blit(saveIcon, (880, 40))
 screen.blit(loadIcon, (945, 45))
 screen.blit(undoIcon, undoRect)
@@ -99,7 +101,7 @@ while running:
             if keys[K_RIGHT]:
                 thickness += 2
     textRect = draw.rect(screen, VALBLUE, (20, 750, 40, 40),0,50)
-    draw.rect(screen, VALBLUE, textRect,0,50)
+    draw.rect(screen, RED, textRect,0,50)
     font = pygame.font.SysFont('Tahoma', 24, False, False)
     screen.blit((font.render(str(thickness), True, BLACK)), (25, 755))
     if evt.type == MOUSEBUTTONDOWN:
@@ -320,13 +322,6 @@ while running:
     oldmx, oldmy = mx, my  # oldmx oldmy is the location of the mouse in the PREVIOUS FRAME
     if mb[0] and saveRect.collidepoint(mx,my):
         fname=filedialog.asksaveasfilename(initialfile = 'My Drawing.png', defaultextension=".png", filetypes=[("All Files","*.*"),("Image Files","*.png")])
-        
-        
-    if mb[0] and loadRect.collidepoint(mx,my):
-        fname=filedialog.askopenfilename()
-##        if fname is None:
-##            return
-        screen.blit((image.load(fname)),canvasRect)
     display.flip()
 
 quit()
