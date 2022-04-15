@@ -3,6 +3,7 @@ from pygame import *
 import pygame
 from tkinter import*
 from tkinter import filedialog
+mixer.init()
 root=Tk()
 root.withdraw()#hides small window
 pygame.init()
@@ -49,6 +50,11 @@ logo = transform.scale((image.load("assets/graphics/logo.png")), (50, 50))
 palette = transform.scale((image.load("assets/graphics/palette.jpg")), (600, 41))
 lineIcon = transform.scale((image.load("assets/graphics/line.png")),(33,33))
 valpaint=transform.scale((image.load("assets/graphics/valpaint.png")),(760,480))
+playicon = transform.scale((image.load("assets/graphics/play.png")),(40,40))
+pauseicon =transform.scale((image.load("assets/graphics/pause.png")),(40,40))
+powericon= transform.scale((image.load("assets/graphics/start.png")),(40,40))
+plus = transform.scale((image.load("assets/graphics/plus.png")),(40,40))
+minus = transform.scale((image.load("assets/graphics/minus.png")),(40,40))
 screen.blit(valpaint,(847,-190))
 screen.blit(saveIcon, (880, 40))
 screen.blit(loadIcon, (945, 45))
@@ -57,6 +63,19 @@ screen.blit(redoIcon, redoRect)
 screen.blit(logo, (15, 40))  # app logo
 pygame.display.set_icon(logo)
 pygame.display.set_caption('ValPaint')
+
+#music loading
+mixer.music.set_volume(0.5)
+playlist1 = []
+playlist1.append('assets/audio/aud.mp3')
+playlist1.append('assets/audio/aud1.mp3')
+playlist1.append('assets/audio/aud2.mp3')
+playlist1.append('assets/audio/aud3.mp3')
+playlist1.append('assets/audio/aud4.mp3')
+playlist1.append('assets/audio/aud5.mp3')
+playlist1.append('assets/audio/aud6.mp3')
+playlist1.append('assets/audio/aud7.mp3')
+
 # rect loading ----- convert to >>for i in range<< for code efficiency
 
 pencilRect = Rect(20, 100, 40, 40)
@@ -75,7 +94,13 @@ stampThree = Rect(20, 550, 40, 40)
 stampFour = Rect(20, 600, 40, 40)
 stampFive = Rect(20, 650, 40, 40)
 lineRect = Rect(20, 700, 40, 40)
-
+startRect = Rect(1100,120,40,40)
+playRect = Rect(1150,120,40,40)
+pauseRect = Rect(1200,120,40,40)
+musicRect = Rect(1080,100,310,80)
+volumeUpRect = Rect(1250,120,40,40)
+volumeDownRect = Rect(1300,120,40,40)
+#screen.blit(pauseicon, pauseRect)
 tools = [pencilRect, eraserRect, paintRect, filledRect, unfilledRect, filledEllipse,
          unfilledEllipse, stampOne, stampTwo, stampThree, stampFour, stampFive, lineRect]
 running = True
@@ -192,6 +217,8 @@ while running:
 
     mx, my = mouse.get_pos()  # getting the current mx and my
     mb = mouse.get_pressed()
+
+
     if mb[0] and loadRect.collidepoint(mx,my):
         screen.set_clip(canvasRect)
         fname=filedialog.askopenfilename()
@@ -201,6 +228,12 @@ while running:
     # drawing all tools
     for rects in range(len(tools)):
         draw.rect(screen, VALBLUE, tools[rects],0,10)
+    draw.rect(screen,BLUE,startRect,0,20)
+    draw.rect(screen,VALBLUE,musicRect)
+    draw.rect(screen, BLUE, playRect,0,20)
+    draw.rect(screen,BLUE, pauseRect,0,20)
+    draw.rect(screen,BLUE, volumeUpRect,0,20)
+    draw.rect(screen,BLUE, volumeDownRect,0,20)
     saveRect = draw.rect(screen, VALBLUE, (880, 40, 55, 55),0,27)
     loadRect = draw.rect(screen, VALBLUE, (880+55+5, 40, 55, 55),0,25)
     screen.blit(pencilicon, (22, 103))
@@ -218,6 +251,11 @@ while running:
     screen.blit(ostamp, (stampFour))
     screen.blit(kstamp, (stampFive))
     screen.blit(lineIcon, (23, 703, 40, 40))
+    screen.blit(playicon, playRect)
+    screen.blit(pauseicon, pauseRect)
+    screen.blit(powericon, startRect)
+    screen.blit(plus, volumeUpRect)
+    screen.blit(minus, volumeDownRect)
 
     # selecting the tools
     if mb[0]:
@@ -251,6 +289,29 @@ while running:
             tool = "stampFive"
         if lineRect.collidepoint(mx, my):
             tool = "line"
+    if mb[0] and playRect.collidepoint(mx,my):
+        draw.rect(screen,BLUE,playRect,2,20)
+        mixer.music.unpause()
+    if mb[0] and pauseRect.collidepoint(mx,my):
+        draw.rect(screen,BLUE,pauseRect,2,20)
+        mixer.music.pause()
+    ############### work in progress #####################
+    if mb[0] and startRect.collidepoint(mx,my):
+        draw.rect(screen,BLUE,startRect,2,20)
+        mixer.music.load(playlist1[0])
+        mixer.music.play()
+    if mixer.music.get_busy(): #queues last audio file instead lol - fix with a loop or manually by loading each after one ends
+        for i in range(len(playlist1)):
+            mixer.music.queue(playlist1[i])
+    ################### work in progress #################
+    if mb[0] and volumeDownRect.collidepoint(mx,my):
+        draw.rect(screen,BLUE,volumeDownRect,2,20)
+        mixer.music.set_volume(0.3)
+    if mb[0] and volumeUpRect.collidepoint(mx,my):
+        draw.rect(screen,BLUE,volumeUpRect,2,20)
+        mixer.music.set_volume(0.7)
+    if mb[2] and startRect.collidepoint(mx,my):
+        mixer.music.stop()
 
     # collidepoint visuals
     for i in range(len(tools)):
@@ -266,6 +327,12 @@ while running:
             draw.rect(screen, RED, saveRect, 2,25)
     if loadRect.collidepoint(mx, my):
             draw.rect(screen, RED, loadRect, 2,25)
+    if pauseRect.collidepoint(mx,my):
+        draw.rect(screen,GREEN,pauseRect,2,20)
+    if playRect.collidepoint(mx,my):
+        draw.rect(screen,GREEN,playRect,2,20)
+    if startRect.collidepoint(mx,my):
+        draw.rect(screen,GREEN,startRect,2,20)
     #when tool is selected
     toolList = ["pencil","eraser","paintbucket","filledRect","unfilledRect","filledEllipse","unfilledEllipse","stampOne","stampTwo","stampThree","stampFour","stampFive","line"]
     try: draw.rect(screen,GREEN,tools[toolList.index(tool)],2,10)
@@ -314,8 +381,10 @@ while running:
             draw.line(screen, col, (sx, sy), (mx, my), thickness)
 
         screen.set_clip(None)  # only the canvas area can be 'updated'
-    print("tool=", tool)
-
+        if mixer.music.get_busy()==True:
+            draw.rect(screen,GREEN,startRect)
+        if mixer.music.get_busy()==False:
+            draw.rect(screen,GREEN,(1100,160,40,40))
     # select (change) colour
     if paletteRect.collidepoint(mx, my) and mb[0]:
         col = screen.get_at((mx, my))
