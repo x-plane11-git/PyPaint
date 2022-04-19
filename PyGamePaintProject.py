@@ -47,7 +47,7 @@ loadIcon = transform.scale((image.load("assets/graphics/load.png")), (45, 45))
 undoIcon = transform.scale((image.load("assets/graphics/undo.png")), (40, 40))
 redoIcon = transform.scale((image.load("assets/graphics/redo.png")), (40, 40))
 logo = transform.scale((image.load("assets/graphics/logo.png")), (50, 50))
-palette = transform.scale((image.load("assets/graphics/palette.jpg")), (600, 41))
+palette = transform.scale((image.load("assets/graphics/palette.png")), (600, 41))
 lineIcon = transform.scale((image.load("assets/graphics/line.png")),(33,33))
 valpaint=transform.scale((image.load("assets/graphics/valpaint.png")),(760,480))
 playicon = transform.scale((image.load("assets/graphics/play.png")),(40,40))
@@ -229,7 +229,7 @@ while running:
     for rects in range(len(tools)):
         draw.rect(screen, VALBLUE, tools[rects],0,10)
     draw.rect(screen,BLUE,startRect,0,20)
-    draw.rect(screen,VALBLUE,musicRect)
+    draw.rect(screen,VALBLUE,musicRect,0,25)
     draw.rect(screen, BLUE, playRect,0,20)
     draw.rect(screen,BLUE, pauseRect,0,20)
     draw.rect(screen,BLUE, volumeUpRect,0,20)
@@ -380,11 +380,8 @@ while running:
             screen.blit(screenCap, canvasRect)
             draw.line(screen, col, (sx, sy), (mx, my), thickness)
 
-        screen.set_clip(None)  # only the canvas area can be 'updated'
-        if mixer.music.get_busy()==True:
-            draw.rect(screen,GREEN,startRect)
-        if mixer.music.get_busy()==False:
-            draw.rect(screen,GREEN,(1100,160,40,40))
+        screen.set_clip(None)  # only the canvas area can be 'updated'd
+        
     # select (change) colour
     if paletteRect.collidepoint(mx, my) and mb[0]:
         col = screen.get_at((mx, my))
