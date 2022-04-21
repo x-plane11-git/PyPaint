@@ -1,6 +1,7 @@
 # PyGamePaintProject
 from pygame import *
 import pygame
+import webbrowser
 from tkinter import*
 from tkinter import filedialog
 mixer.init()
@@ -55,12 +56,16 @@ pauseicon =transform.scale((image.load("assets/graphics/pause.png")),(40,40))
 powericon= transform.scale((image.load("assets/graphics/start.png")),(40,40))
 plus = transform.scale((image.load("assets/graphics/plus.png")),(40,40))
 minus = transform.scale((image.load("assets/graphics/minus.png")),(40,40))
+valdownload = transform.scale((image.load("assets/graphics/vallogo.png")),(50,50))
 screen.blit(valpaint,(847,-190))
 screen.blit(saveIcon, (880, 40))
 screen.blit(loadIcon, (945, 45))
 screen.blit(undoIcon, undoRect)
 screen.blit(redoIcon, redoRect)
 screen.blit(logo, (15, 40))  # app logo
+downloadRect = Rect(1080,190,310,65)
+draw.rect(screen,VALBLUE,downloadRect,0,20)
+screen.blit(valdownload, (1095,200))
 pygame.display.set_icon(logo)
 pygame.display.set_caption('ValPaint')
 
@@ -100,6 +105,8 @@ pauseRect = Rect(1200,120,40,40)
 musicRect = Rect(1080,100,310,80)
 volumeUpRect = Rect(1250,120,40,40)
 volumeDownRect = Rect(1300,120,40,40)
+tooltipRect = Rect(1080,265,310,100)
+thicknessRect = Rect(1080,380,310,130)
 #screen.blit(pauseicon, pauseRect)
 tools = [pencilRect, eraserRect, paintRect, filledRect, unfilledRect, filledEllipse,
          unfilledEllipse, stampOne, stampTwo, stampThree, stampFour, stampFive, lineRect]
@@ -111,6 +118,8 @@ radius = 10
 draw.rect(screen, WHITE, canvasRect)
 screenCap = screen.subsurface(canvasRect).copy()
 thickness = 5
+link_font = pygame.font.SysFont('Tahoma', 20)
+link_color = WHITE
 while running:
     for evt in event.get():
         if evt.type == QUIT:
@@ -125,16 +134,26 @@ while running:
                 thickness -= 2
             if keys[K_RIGHT]:
                 thickness += 2
+    screen.blit(link_font.render("Download Valorant>>>", True, link_color), (1150, 210))
     textRect = draw.rect(screen, VALBLUE, (20, 750, 40, 40),0,50)
-    draw.rect(screen, RED, textRect,0,50)
-    font = pygame.font.SysFont('Tahoma', 24, False, False)
-    screen.blit((font.render(str(thickness), True, BLACK)), (25, 755))
+    draw.rect(screen,VALBLUE,(thicknessRect),0,25)
+    draw.rect(screen,RED,(1090,390,50,25),0,25)
+    screen.blit((link_font.render(str(thickness)+"      <- Thickness", True, link_color)), (1100, 390))
+    screen.blit((link_font.render("To Adjust: Up/Down Arrow", True, link_color)), (1100, 410))
+    screen.blit((link_font.render("keys adds or subtracts 1 to", True, link_color)), (1100, 430))
+    screen.blit((link_font.render("thickness. Left/Right keys ", True, link_color)), (1100, 450))
+    screen.blit((link_font.render("increase/decrease by 2.", True, link_color)), (1100, 470))
+
+
     if evt.type == MOUSEBUTTONDOWN:
         if evt.button == 1:  # left click
             sx, sy = evt.pos  # getting the STARTING x and y pos
             myRect = Rect(sx, sy, mx-sx, my-sy)
-        # if evt.type==
+    
     if evt.type == MOUSEBUTTONUP:
+        if mb[0]:
+            if downloadRect.collidepoint(mx,my):
+                webbrowser.open(r"https://playvalorant.com/")
         if tool == "pencil":
             screen.set_clip(canvasRect)
             draw.line(screen, col, (oldmx, oldmy), (mx, my))
@@ -218,16 +237,10 @@ while running:
     mx, my = mouse.get_pos()  # getting the current mx and my
     mb = mouse.get_pressed()
 
-
-    if mb[0] and loadRect.collidepoint(mx,my):
-        screen.set_clip(canvasRect)
-        fname=filedialog.askopenfilename()
-        screen.blit((image.load(fname)),canvasRect)
-        screenCap = screen.subsurface(canvasRect).copy()
-        screen.set_clip(None)
     # drawing all tools
     for rects in range(len(tools)):
         draw.rect(screen, VALBLUE, tools[rects],0,10)
+    draw.rect(screen,VALBLUE,tooltipRect,0,25)
     draw.rect(screen,BLUE,startRect,0,20)
     draw.rect(screen,VALBLUE,musicRect,0,25)
     draw.rect(screen, BLUE, playRect,0,20)
@@ -335,8 +348,47 @@ while running:
         draw.rect(screen,GREEN,startRect,2,20)
     #when tool is selected
     toolList = ["pencil","eraser","paintbucket","filledRect","unfilledRect","filledEllipse","unfilledEllipse","stampOne","stampTwo","stampThree","stampFour","stampFive","line"]
+    stamps=["stampOne","stampTwo","stampThree","stampFour","stampFive"]
     try: draw.rect(screen,GREEN,tools[toolList.index(tool)],2,10)
     except: pass
+    if tool == "pencil":
+        screen.blit(link_font.render("Pencil Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click and Drag to draw.", True, link_color), (1100, 290))
+    if tool == "eraser":
+        screen.blit(link_font.render("Eraser Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click and Drag to erase.", True, link_color), (1100, 290))
+    if tool == "paintbucket":
+        screen.blit(link_font.render("Paint Bucket Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Fill the entire screen with", True, link_color), (1100, 290))
+        screen.blit(link_font.render("your selected colour.", True, link_color), (1100, 310))
+    if tool == "filledRect":
+        screen.blit(link_font.render("Filled Rectangle:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click and Drag to draw", True, link_color), (1100, 290))
+        screen.blit(link_font.render("a rectangle (filled).", True, link_color), (1100, 310))
+    if tool == "unfilledRect":
+        screen.blit(link_font.render("Unfilled Rectangle Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click and Drag to draw", True, link_color), (1100, 290))
+        screen.blit(link_font.render("a rectangle. Adjust thickness", True, link_color), (1100, 310))
+        screen.blit(link_font.render("with up or down arrow keys.", True, link_color), (1100, 330))
+    if tool == "filledEllipse":
+        screen.blit(link_font.render("Ellipse Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click and Drag to draw a", True, link_color), (1100, 290))
+        screen.blit(link_font.render("filled Ellipse.", True, link_color), (1100, 310))
+    if tool == "unfilledEllipse":
+        screen.blit(link_font.render("Unfilled Ellipse Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click and Drag to draw Ellipse.", True, link_color), (1100, 290))
+        screen.blit(link_font.render("Adjust thickness with up or", True, link_color), (1100, 310))
+        screen.blit(link_font.render("down arrow keys.", True, link_color), (1100, 330))
+    if tool == "line":
+        screen.blit(link_font.render("Line Tool:", True, link_color), (1100, 270))
+        screen.blit(link_font.render("Click for start point and drag.", True, link_color), (1100, 290))
+        screen.blit(link_font.render("Release at desired end point.", True, link_color), (1100, 310))
+    for stamp in stamps:
+        if tool == stamp:
+            screen.blit(link_font.render("Stamp Selected:", True, link_color), (1100, 270))
+            screen.blit(link_font.render("Click and release to place.", True, link_color), (1100, 290))
+            screen.blit(link_font.render("You may drag until satisfied", True, link_color), (1100, 310))
+            screen.blit(link_font.render("then release.", True, link_color), (1100, 330))
     # use the tool
     if canvasRect.collidepoint(mx, my) and mb[0]:
         screen.set_clip(canvasRect)
@@ -387,7 +439,22 @@ while running:
         col = screen.get_at((mx, my))
     oldmx, oldmy = mx, my  # oldmx oldmy is the location of the mouse in the PREVIOUS FRAME
     if mb[0] and saveRect.collidepoint(mx,my):
-        fname=filedialog.asksaveasfilename(initialfile = 'My Drawing.png', defaultextension=".png", filetypes=[("All Files","*.*"),("Image Files","*.png")])
+        fname=filedialog.asksaveasfilename(defaultextension=".png")
+        if fname!="":
+            image.save(screenCap,fname)
+    if mb[0] and loadRect.collidepoint(mx,my):
+        screen.set_clip(canvasRect)
+        fname=filedialog.askopenfilename()
+        loadpic=image.load(fname)
+        w2=loadpic.get_width()
+        h2=loadpic.get_height()
+        if w2<=1000 and h2<=675:
+            screen.blit(loadpic,(75,100))
+            screenCap=screen.subsurface(canvasRect).copy()
+        else:
+            loadpic2=transform.scale(loadpic,(w2//2,h2//2))
+            screen.blit(loadpic2,(75,100))
+            screenCap=screen.subsurface(canvasRect).copy()
     display.flip()
 
 quit()
