@@ -1,13 +1,13 @@
 # PyGamePaintProject
 from pygame import *
 import pygame
-import webbrowser
-from tkinter import*
+import webbrowser #to open links
+from tkinter import* #for saving and loading
 from tkinter import filedialog
-mixer.init()
+mixer.init() #initialize music player
 root=Tk()
 root.withdraw()#hides small window
-pygame.init()
+pygame.init() #initializes pygame (used for window settings such as icon and window text)
 width, height = 1400, 800
 screen = display.set_mode((width, height))
 RED = (255, 0, 0)
@@ -138,7 +138,7 @@ while running:
     textRect = draw.rect(screen, VALBLUE, (20, 750, 40, 40),0,50)
     draw.rect(screen,VALBLUE,(thicknessRect),0,25)
     draw.rect(screen,RED,(1090,390,50,25),0,25)
-    screen.blit((link_font.render(str(thickness)+"      <- Thickness", True, link_color)), (1100, 390))
+    screen.blit((link_font.render(str(thickness)+"      <- Thickness (px)", True, link_color)), (1100, 390))
     screen.blit((link_font.render("To Adjust: Up/Down Arrow", True, link_color)), (1100, 410))
     screen.blit((link_font.render("keys adds or subtracts 1 to", True, link_color)), (1100, 430))
     screen.blit((link_font.render("thickness. Left/Right keys ", True, link_color)), (1100, 450))
@@ -351,6 +351,7 @@ while running:
     stamps=["stampOne","stampTwo","stampThree","stampFour","stampFive"]
     try: draw.rect(screen,GREEN,tools[toolList.index(tool)],2,10)
     except: pass
+    #ToolTip Text Rendering
     if tool == "pencil":
         screen.blit(link_font.render("Pencil Tool:", True, link_color), (1100, 270))
         screen.blit(link_font.render("Click and Drag to draw.", True, link_color), (1100, 290))
@@ -389,7 +390,7 @@ while running:
             screen.blit(link_font.render("Click and release to place.", True, link_color), (1100, 290))
             screen.blit(link_font.render("You may drag until satisfied", True, link_color), (1100, 310))
             screen.blit(link_font.render("then release.", True, link_color), (1100, 330))
-    # use the tool
+    #Utilise the tool on the Canvas
     if canvasRect.collidepoint(mx, my) and mb[0]:
         screen.set_clip(canvasRect)
         if tool == "pencil":
@@ -432,12 +433,13 @@ while running:
             screen.blit(screenCap, canvasRect)
             draw.line(screen, col, (sx, sy), (mx, my), thickness)
 
-        screen.set_clip(None)  # only the canvas area can be 'updated'd
+        screen.set_clip(None)  # only the canvas area can be updated
         
-    # select (change) colour
+    # Customize colour
     if paletteRect.collidepoint(mx, my) and mb[0]:
         col = screen.get_at((mx, my))
-    oldmx, oldmy = mx, my  # oldmx oldmy is the location of the mouse in the PREVIOUS FRAME
+    oldmx, oldmy = mx, my  # oldmx,oldmy is the mouse position in the previous frame
+    #Saving and Loading
     if mb[0] and saveRect.collidepoint(mx,my):
         fname=filedialog.asksaveasfilename(defaultextension=".png")
         if fname!="":
@@ -456,5 +458,5 @@ while running:
             screen.blit(loadpic2,(75,100))
             screenCap=screen.subsurface(canvasRect).copy()
     display.flip()
-
+#end program
 quit()
