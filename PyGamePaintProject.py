@@ -4,6 +4,11 @@ import pygame
 import webbrowser #to open links
 from tkinter import* #for saving and loading
 from tkinter import filedialog
+from tkinter import messagebox
+import ctypes
+ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 0 )
+Tk().wm_withdraw() #to hide the main window
+messagebox.showinfo('ValPaint v0.8 - Beta Warning','ValPaint is in Beta and not fully functional.\nProgram can crash unexpectedly.')
 mixer.init() #initialize music player
 root=Tk()
 root.withdraw()#hides small window
