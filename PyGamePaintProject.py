@@ -5,6 +5,7 @@ import webbrowser #to open links
 from tkinter import* #for saving and loading
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import messagebox as mb
 import ctypes
 ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 0 )
 Tk().wm_withdraw() #to hide the main window
@@ -14,7 +15,11 @@ root=Tk()
 root.withdraw()#hides small window
 pygame.init() #initializes pygame (used for window settings such as icon and window text)
 width, height = 1400, 800
-screen = display.set_mode((width, height))
+res=mb.askquestion("Window Size","Start ValPaint in fullscreen?")
+if res == 'yes' :
+    screen = display.set_mode((0,0),pygame.FULLSCREEN)
+else :
+    screen = display.set_mode((width, height))
 RED = (255, 0, 0)
 ORANGE = (255, 127, 0)
 YELLOW = (255, 255, 0)
@@ -36,31 +41,31 @@ redoRect = draw.rect(screen, VALBLUE, (830, 50, 40, 40),0,10)
 whiteRect = draw.rect(screen, WHITE, (80+60, 70, 20, 20),0,10)
 
 # image loading - optimized (transformation and loading within one line)
-pencilicon = transform.scale((image.load("assets/graphics/pencil.png")), (35, 35))
-erasericon = transform.scale((image.load("assets/graphics/eraser.png")), (35, 35))
-paintIcon = transform.scale((image.load("assets/graphics/paint.png")), (35, 35))
+pencilicon = image.load("assets/graphics/pencil.png")
+erasericon = image.load("assets/graphics/eraser.png")
+paintIcon = image.load("assets/graphics/paint.png")
 vstamp = transform.scale((image.load("assets/graphics/vlogo.png")), (70, 50))
 ostamp = transform.scale((image.load("assets/graphics/Omen_icon.png")), (40, 40))
 jstamp = transform.scale((image.load("assets/graphics/Jett_icon.png")), (40, 40))
 kstamp = transform.scale((image.load("assets/graphics/KAYO_icon.png")), (40, 40))
 rstamp = transform.scale((image.load("assets/graphics/Reyna_icon.png")), (40, 40))
-filledRecticon = transform.scale((image.load("assets/graphics/filledRect.png")), (40, 40))
-unfilledRecticon = transform.scale((image.load("assets/graphics/unfilledRect.png")), (36, 36))
-filledEllipseicon = transform.scale((image.load("assets/graphics/filledEllipse.png")), (40, 40))
-unfilledEllipseicon = transform.scale((image.load("assets/graphics/unfilledEllipse.png")), (40, 40))
-saveIcon = transform.scale((image.load("assets/graphics/save.png")), (55, 55))
-loadIcon = transform.scale((image.load("assets/graphics/load.png")), (45, 45))
-undoIcon = transform.scale((image.load("assets/graphics/undo.png")), (40, 40))
-redoIcon = transform.scale((image.load("assets/graphics/redo.png")), (40, 40))
+filledRecticon = image.load("assets/graphics/filledRect.png")
+unfilledRecticon = image.load("assets/graphics/unfilledRect.png")
+filledEllipseicon = image.load("assets/graphics/filledEllipse.png")
+unfilledEllipseicon = image.load("assets/graphics/unfilledEllipse.png")
+saveIcon = image.load("assets/graphics/save.png")
+loadIcon = image.load("assets/graphics/load.png")
+undoIcon = image.load("assets/graphics/undo.png")
+redoIcon = image.load("assets/graphics/redo.png")
 logo = transform.scale((image.load("assets/graphics/logo.png")), (50, 50))
 palette = transform.scale((image.load("assets/graphics/palette.png")), (600, 41))
-lineIcon = transform.scale((image.load("assets/graphics/line.png")),(33,33))
+lineIcon = image.load("assets/graphics/line.png")
 valpaint=transform.scale((image.load("assets/graphics/valpaint.png")),(760,480))
-playicon = transform.scale((image.load("assets/graphics/play.png")),(40,40))
-pauseicon =transform.scale((image.load("assets/graphics/pause.png")),(40,40))
-powericon= transform.scale((image.load("assets/graphics/start.png")),(40,40))
-plus = transform.scale((image.load("assets/graphics/plus.png")),(40,40))
-minus = transform.scale((image.load("assets/graphics/minus.png")),(40,40))
+playicon = image.load("assets/graphics/play.png")
+pauseicon = image.load("assets/graphics/pause.png")
+powericon= image.load("assets/graphics/start.png")
+plus = image.load("assets/graphics/plus.png")
+minus = image.load("assets/graphics/minus.png")
 valdownload = transform.scale((image.load("assets/graphics/vallogo.png")),(50,50))
 screen.blit(valpaint,(847,-190))
 screen.blit(saveIcon, (880, 40))
@@ -144,10 +149,10 @@ while running:
     draw.rect(screen,VALBLUE,(thicknessRect),0,25)
     draw.rect(screen,RED,(1090,390,50,25),0,25)
     screen.blit((link_font.render(str(thickness)+"      <- Thickness (px)", True, link_color)), (1100, 390))
-    screen.blit((link_font.render("To Adjust: Up/Down Arrow", True, link_color)), (1100, 410))
-    screen.blit((link_font.render("keys adds or subtracts 1 to", True, link_color)), (1100, 430))
-    screen.blit((link_font.render("thickness. Left/Right keys ", True, link_color)), (1100, 450))
-    screen.blit((link_font.render("increase/decrease by 2.", True, link_color)), (1100, 470))
+    screen.blit((link_font.render("To Adjust:", True, link_color)), (1100, 410))
+    screen.blit((link_font.render("Up/Down Arrow = +/- 1", True, link_color)), (1100, 430))
+    screen.blit((link_font.render("Left/Right Arrow = +/- 2 ", True, link_color)), (1100, 450))
+    screen.blit((link_font.render("Automatically applied to tools.", True, link_color)), (1100, 470))
 
 
     if evt.type == MOUSEBUTTONDOWN:
@@ -450,18 +455,22 @@ while running:
         if fname!="":
             image.save(screenCap,fname)
     if mb[0] and loadRect.collidepoint(mx,my):
-        screen.set_clip(canvasRect)
         fname=filedialog.askopenfilename()
-        loadpic=image.load(fname)
-        w2=loadpic.get_width()
-        h2=loadpic.get_height()
-        if w2<=1000 and h2<=675:
-            screen.blit(loadpic,(75,100))
-            screenCap=screen.subsurface(canvasRect).copy()
+        if fname!="":
+            screen.set_clip(canvasRect)
+            fname=filedialog.askopenfilename()
+            loadpic=image.load(fname)
+            w2=loadpic.get_width()
+            h2=loadpic.get_height()
+            if w2<=1000 and h2<=675:
+                screen.blit(loadpic,(75,100))
+                screenCap=screen.subsurface(canvasRect).copy()
+            else:
+                loadpic2=transform.scale(loadpic,(w2//2,h2//2))
+                screen.blit(loadpic2,(75,100))
+                screenCap=screen.subsurface(canvasRect).copy()
         else:
-            loadpic2=transform.scale(loadpic,(w2//2,h2//2))
-            screen.blit(loadpic2,(75,100))
-            screenCap=screen.subsurface(canvasRect).copy()
+            exit
     display.flip()
 #end program
 quit()
