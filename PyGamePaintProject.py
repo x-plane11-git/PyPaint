@@ -15,9 +15,11 @@ root=Tk()
 root.withdraw()#hides small window
 pygame.init() #initializes pygame (used for window settings such as icon and window text)
 width, height = 1400, 800
+state=0 #variable to determine if screen is fullscreen
 res=mb.askquestion("Window Size","Start ValPaint in fullscreen?")
 if res == 'yes' :
     screen = display.set_mode((0,0),pygame.FULLSCREEN)
+    state=1
 else :
     screen = display.set_mode((width, height))
 RED = (255, 0, 0)
@@ -130,6 +132,10 @@ screenCap = screen.subsurface(canvasRect).copy()
 thickness = 5
 link_font = pygame.font.SysFont('Tahoma', 20)
 link_color = WHITE
+if state==1:
+    screen.blit((pygame.font.SysFont('Tahoma', 15)).render("Programmed By Taksh Unnithan on Pygame",True,WHITE),(25,825))
+    draw.rect(screen,VALBLUE,(1400,100,130,675),0,20)
+    
 while running:
     for evt in event.get():
         if evt.type == QUIT:
