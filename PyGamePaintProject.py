@@ -1,5 +1,6 @@
 # PyGamePaintProject
 from pygame import *
+from math import*
 import pygame
 import webbrowser #to open links
 from tkinter import* #for saving and loading
@@ -16,7 +17,7 @@ root.withdraw()#hides small window
 pygame.init() #initializes pygame (used for window settings such as icon and window text)
 width, height = 1400, 800
 state=0 #variable to determine if screen is fullscreen
-res=mb.askquestion("Window Size","Start ValPaint in fullscreen?")
+res=mb.askquestion("Window Size","Start ValPaint in fullscreen? (Work in Progress)\n(Must have minimum resolution of 1400x800)")
 if res == 'yes' :
     screen = display.set_mode((0,0),pygame.FULLSCREEN)
     state=1
@@ -41,7 +42,6 @@ blackRect = draw.rect(screen, BLACK, (80+60, 50, 20, 20),0,10)
 undoRect = draw.rect(screen, VALBLUE, (785, 50, 40, 40),0,10)
 redoRect = draw.rect(screen, VALBLUE, (830, 50, 40, 40),0,10)
 whiteRect = draw.rect(screen, WHITE, (80+60, 70, 20, 20),0,10)
-
 # image loading - optimized (transformation and loading within one line)
 pencilicon = image.load("assets/graphics/pencil.png")
 erasericon = image.load("assets/graphics/eraser.png")
@@ -76,23 +76,12 @@ screen.blit(undoIcon, undoRect)
 screen.blit(redoIcon, redoRect)
 screen.blit(logo, (15, 40))  # app logo
 downloadRect = Rect(1080,190,310,65)
-draw.rect(screen,VALBLUE,downloadRect,0,20)
-screen.blit(valdownload, (1095,200))
 pygame.display.set_icon(logo)
 pygame.display.set_caption('ValPaint')
 
 #music loading
 mixer.music.set_volume(0.5)
-playlist1 = []
-playlist1.append('assets/audio/aud.mp3')
-playlist1.append('assets/audio/aud1.mp3')
-playlist1.append('assets/audio/aud2.mp3')
-playlist1.append('assets/audio/aud3.mp3')
-playlist1.append('assets/audio/aud4.mp3')
-playlist1.append('assets/audio/aud5.mp3')
-playlist1.append('assets/audio/aud6.mp3')
-playlist1.append('assets/audio/aud7.mp3')
-
+playlist1 = ["assets/audio/aud.mp3",'assets/audio/aud1.mp3','assets/audio/aud2.mp3','assets/audio/aud3.mp3','assets/audio/aud4.mp3','assets/audio/aud5.mp3','assets/audio/aud6.mp3','assets/audio/aud7.mp3']
 # rect loading ----- convert to >>for i in range<< for code efficiency
 
 pencilRect = Rect(20, 100, 40, 40)
@@ -119,7 +108,8 @@ volumeUpRect = Rect(1250,120,40,40)
 volumeDownRect = Rect(1300,120,40,40)
 tooltipRect = Rect(1080,265,310,100)
 thicknessRect = Rect(1080,380,310,130)
-#screen.blit(pauseicon, pauseRect)
+mastersRect = Rect(1080,520,310,250)
+
 tools = [pencilRect, eraserRect, paintRect, filledRect, unfilledRect, filledEllipse,
          unfilledEllipse, stampOne, stampTwo, stampThree, stampFour, stampFive, lineRect]
 running = True
@@ -131,11 +121,7 @@ draw.rect(screen, WHITE, canvasRect)
 screenCap = screen.subsurface(canvasRect).copy()
 thickness = 5
 link_font = pygame.font.SysFont('Tahoma', 20)
-link_color = WHITE
-if state==1:
-    screen.blit((pygame.font.SysFont('Tahoma', 15)).render("Programmed By Taksh Unnithan on Pygame",True,WHITE),(25,825))
-    draw.rect(screen,VALBLUE,(1400,100,130,675),0,20)
-    
+link_color = WHITE    
 while running:
     for evt in event.get():
         if evt.type == QUIT:
@@ -150,7 +136,6 @@ while running:
                 thickness -= 2
             if keys[K_RIGHT]:
                 thickness += 2
-    screen.blit(link_font.render("Download Valorant>>>", True, link_color), (1150, 210))
     textRect = draw.rect(screen, VALBLUE, (20, 750, 40, 40),0,50)
     draw.rect(screen,VALBLUE,(thicknessRect),0,25)
     draw.rect(screen,RED,(1090,390,50,25),0,25)
@@ -170,6 +155,14 @@ while running:
         if mb[0]:
             if downloadRect.collidepoint(mx,my):
                 webbrowser.open(r"https://playvalorant.com/")
+                messagebox.showinfo('ValPaint v0.8','Download link opened in browser!')
+            if mastersRect.collidepoint(mx,my):
+                webbrowser.open(r"https://www.twitch.tv/VALORANT/")
+                messagebox.showinfo('ValPaint v0.8','VALORANT Masters Live Twitch link opened!')
+        if state==1:              
+            if mb[0] and updateRect.collidepoint(mx,my):
+                webbrowser.open(r"https://github.com/x-plane11-git/PyPaint")
+
         if tool == "pencil":
             screen.set_clip(canvasRect)
             draw.line(screen, col, (oldmx, oldmy), (mx, my))
@@ -177,7 +170,7 @@ while running:
             screen.set_clip(None)
         if tool == "eraser":
             screen.set_clip(canvasRect)
-            draw.circle(screen, bgcol, (mx, my), radius)
+            draw.circle(screen, bgcol, (mx, my), thickness)
             screenCap = screen.subsurface(canvasRect).copy()
             screen.set_clip(None)
         if tool == "paintbucket":
@@ -252,10 +245,25 @@ while running:
 
     mx, my = mouse.get_pos()  # getting the current mx and my
     mb = mouse.get_pressed()
-
+    #for fullscreen users
+    if state==1:
+        screen.blit((pygame.font.SysFont('Tahoma', 15)).render("Programmed By Taksh Unnithan on Pygame",True,WHITE),(25,825))
+        draw.rect(screen,VALBLUE,(1400,100,130,675),0,20)
+        git=transform.scale((image.load("assets/graphics/github.png")),(100,100))
+        updateRect=draw.rect(screen,VALBLUE,(1415,120,100,100))
+        screen.blit(git,(1415,120))
+        if updateRect.collidepoint(mx,my):
+                draw.rect(screen,GREEN,updateRect,2,20)  
     # drawing all tools
     for rects in range(len(tools)):
         draw.rect(screen, VALBLUE, tools[rects],0,10)
+    draw.rect(screen,VALBLUE,downloadRect,0,20)
+    screen.blit(valdownload, (1095,200))
+    screen.blit(link_font.render("Download Valorant>>>", True, link_color), (1150, 210))
+    draw.rect(screen,VALBLUE,mastersRect,0,25)
+    masterlive = transform.scale((image.load("assets/graphics/mastersnews.jpg")), (290, 190))
+    screen.blit(masterlive,(1090,530))
+    screen.blit((pygame.font.SysFont('Tahoma', 15)).render("Watch VALORANT Masters Live on Twitch>",True,WHITE),(1090,730))
     draw.rect(screen,VALBLUE,tooltipRect,0,25)
     draw.rect(screen,BLUE,startRect,0,20)
     draw.rect(screen,VALBLUE,musicRect,0,25)
@@ -328,10 +336,9 @@ while running:
     if mb[0] and startRect.collidepoint(mx,my):
         draw.rect(screen,BLUE,startRect,2,20)
         mixer.music.load(playlist1[0])
-        mixer.music.play()
-    if mixer.music.get_busy(): #queues last audio file instead lol - fix with a loop or manually by loading each after one ends
         for i in range(len(playlist1)):
             mixer.music.queue(playlist1[i])
+        mixer.music.play()
     ################### work in progress #################
     if mb[0] and volumeDownRect.collidepoint(mx,my):
         draw.rect(screen,BLUE,volumeDownRect,2,20)
@@ -362,6 +369,10 @@ while running:
         draw.rect(screen,GREEN,playRect,2,20)
     if startRect.collidepoint(mx,my):
         draw.rect(screen,GREEN,startRect,2,20)
+    if mastersRect.collidepoint(mx,my):
+        draw.rect(screen,GREEN,mastersRect,2,25)
+    if downloadRect.collidepoint(mx,my):
+        draw.rect(screen,GREEN,downloadRect,2,25)
     #when tool is selected
     toolList = ["pencil","eraser","paintbucket","filledRect","unfilledRect","filledEllipse","unfilledEllipse","stampOne","stampTwo","stampThree","stampFour","stampFive","line"]
     stamps=["stampOne","stampTwo","stampThree","stampFour","stampFive"]
@@ -412,7 +423,14 @@ while running:
         if tool == "pencil":
             draw.line(screen, col, (oldmx, oldmy), (mx, my))
         if tool == "eraser":
-            draw.circle(screen, bgcol, (mx, my), radius)
+            dx=mx-oldmx
+            dy=my-oldmy
+            dist=sqrt(dx**2+dy**2)
+            for d in range(1,int(dist),1):
+                dotX=d*dx/dist+oldmx
+                dotY=d*dy/dist+oldmy
+                draw.circle(screen,bgcol,(int(dotX),int(dotY)),thickness)
+            draw.circle(screen, bgcol, (mx, my), thickness)
         if tool == "paintbucket":
             screen.fill(col, canvasRect)
         if tool == "filledRect":
