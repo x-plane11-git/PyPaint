@@ -18,6 +18,7 @@ pygame.init() #initializes pygame (used for window settings such as icon and win
 width, height = 1400, 800
 state=0 #variable to determine if screen is fullscreen
 res=mb.askquestion("Window Size","Start ValPaint in fullscreen? (Work in Progress)\n(Must have minimum resolution of 1400x800)")
+mouse.set_cursor((43,43), transform.scale(image.load("assets/graphics/cursor.png"), (100,100)))
 if res == 'yes' :
     screen = display.set_mode((0,0),pygame.FULLSCREEN)
     state=1
@@ -69,6 +70,8 @@ powericon= image.load("assets/graphics/start.png")
 plus = image.load("assets/graphics/plus.png")
 minus = image.load("assets/graphics/minus.png")
 valdownload = transform.scale((image.load("assets/graphics/vallogo.png")),(50,50))
+nextsong = transform.scale((image.load("assets/graphics/next.png")),(20,20))
+previous = transform.scale((image.load("assets/graphics/previous.png")),(20,20))
 screen.blit(valpaint,(847,-190))
 screen.blit(saveIcon, (880, 40))
 screen.blit(loadIcon, (945, 45))
@@ -80,7 +83,8 @@ pygame.display.set_icon(logo)
 pygame.display.set_caption('ValPaint')
 
 #music loading
-mixer.music.set_volume(0.5)
+volume=0.5
+mixer.music.set_volume(volume)
 playlist1 = ["assets/audio/aud.mp3",'assets/audio/aud1.mp3','assets/audio/aud2.mp3','assets/audio/aud3.mp3','assets/audio/aud4.mp3','assets/audio/aud5.mp3','assets/audio/aud6.mp3','assets/audio/aud7.mp3']
 # rect loading ----- convert to >>for i in range<< for code efficiency
 
@@ -109,10 +113,14 @@ volumeDownRect = Rect(1300,120,40,40)
 tooltipRect = Rect(1080,265,310,100)
 thicknessRect = Rect(1080,380,310,130)
 mastersRect = Rect(1080,520,310,250)
+nextRect = Rect(1350,120,20,20)
+previousRect = Rect(1350,140,20,20)
 
 tools = [pencilRect, eraserRect, paintRect, filledRect, unfilledRect, filledEllipse,
-         unfilledEllipse, stampOne, stampTwo, stampThree, stampFour, stampFive, lineRect]
+         unfilledEllipse, stampOne, stampTwo, stampThree, stampFour, stampFive, lineRect,undoRect,redoRect,nextRect,previousRect]
 running = True
+songPos=0
+mixer.music.load(playlist1[songPos])
 tool = ""
 col = BLACK
 bgcol = WHITE
@@ -123,6 +131,7 @@ thickness = 5
 link_font = pygame.font.SysFont('Tahoma', 20)
 link_color = WHITE    
 while running:
+    click=False
     for evt in event.get():
         if evt.type == QUIT:
             running = False
@@ -150,6 +159,7 @@ while running:
         if evt.button == 1:  # left click
             sx, sy = evt.pos  # getting the STARTING x and y pos
             myRect = Rect(sx, sy, mx-sx, my-sy)
+            click=True
     
     if evt.type == MOUSEBUTTONUP:
         if mb[0]:
@@ -293,6 +303,8 @@ while running:
     screen.blit(powericon, startRect)
     screen.blit(plus, volumeUpRect)
     screen.blit(minus, volumeDownRect)
+    screen.blit(nextsong, nextRect)
+    screen.blit(previous, previousRect)
 
     # selecting the tools
     if mb[0]:
@@ -333,19 +345,28 @@ while running:
         draw.rect(screen,BLUE,pauseRect,2,20)
         mixer.music.pause()
     ############### work in progress #####################
-    if mb[0] and startRect.collidepoint(mx,my):
+    if click and startRect.collidepoint(mx,my):
+        print("hii")
         draw.rect(screen,BLUE,startRect,2,20)
-        mixer.music.load(playlist1[0])
-        for i in range(len(playlist1)):
-            mixer.music.queue(playlist1[i])
         mixer.music.play()
+
+    if click and nextRect.collidepoint(mx,my):
+        songPos=(songPos+1)%len(playlist1)
+        mixer.music.load(playlist1[songPos])
+        mixer.music.play()
+    if click and previousRect.collidepoint(mx,my):
+        songPos=(songPos-1+(len(playlist1)))%len(playlist1)
+        mixer.music.load(playlist1[songPos])
+        mixer.music.play()   
     ################### work in progress #################
     if mb[0] and volumeDownRect.collidepoint(mx,my):
         draw.rect(screen,BLUE,volumeDownRect,2,20)
-        mixer.music.set_volume(0.3)
+        volume-=0.1
+        mixer.music.set_volume(volume)
     if mb[0] and volumeUpRect.collidepoint(mx,my):
         draw.rect(screen,BLUE,volumeUpRect,2,20)
-        mixer.music.set_volume(0.7)
+        volume+=0.1
+        mixer.music.set_volume(volume)
     if mb[2] and startRect.collidepoint(mx,my):
         mixer.music.stop()
 
