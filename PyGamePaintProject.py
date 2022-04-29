@@ -10,14 +10,14 @@ from tkinter import messagebox as mb
 import ctypes
 ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 0 )
 Tk().wm_withdraw() #to hide the main window
-messagebox.showinfo('ValPaint v0.8 - Beta Warning','ValPaint is in Beta and not fully functional.\nProgram can crash unexpectedly.')
+messagebox.showinfo('ValPaint v1 - Warning','ValPaint is not fully functional and\nmay close unexpectedly.')
 mixer.init() #initialize music player
 root=Tk()
 root.withdraw()#hides small window
 pygame.init() #initializes pygame (used for window settings such as icon and window text)
 width, height = 1400, 800
 state=0 #variable to determine if screen is fullscreen
-res=mb.askquestion("Window Size","Start ValPaint in fullscreen? (Work in Progress)\n(Must have minimum resolution of 1400x800)")
+res=mb.askquestion("Window Size","Start ValPaint in fullscreen? (Work in Progress)\n(Must have minimum resolution of 1400x800)\nIdeal for laptops.")
 mouse.set_cursor((43,43), transform.scale(image.load("assets/graphics/cursor.png"), (100,100)))
 if res == 'yes' :
     screen = display.set_mode((0,0),pygame.FULLSCREEN)
@@ -118,6 +118,13 @@ previousRect = Rect(1350,140,20,20)
 
 tools = [pencilRect, eraserRect, paintRect, filledRect, unfilledRect, filledEllipse,
          unfilledEllipse, stampOne, stampTwo, stampThree, stampFour, stampFive, lineRect,undoRect,redoRect,nextRect,previousRect]
+
+#undo redo
+undoList=[]
+redoList=[]
+screenshots=screen.subsurface(canvasRect).copy()
+undoList.append(screenshots)
+
 running = True
 songPos=0
 mixer.music.load(playlist1[songPos])
@@ -172,6 +179,24 @@ while running:
         if state==1:              
             if mb[0] and updateRect.collidepoint(mx,my):
                 webbrowser.open(r"https://github.com/x-plane11-git/PyPaint")
+        if click and undoRect.collidepoint(mx,my):
+            tool="undo"
+            screen.set_clip(canvasRect)
+            redoList.append(undoList[-1])
+            if len(undoList)>1:
+                undoList.pop()
+            screen.blit(undoList[-1],(canvasRect))
+            screenCap = screen.subsurface(canvasRect).copy()
+            screen.set_clip(None)
+        if click and redoRect.collidepoint(mx,my):
+            tool="redo"
+            screen.set_clip(canvasRect)
+            if len(redoList)>0: 
+                undoList.append(redoList[-1])
+                redoList.pop()
+            screen.blit(undoList[-1],(canvasRect))
+            screenCap = screen.subsurface(canvasRect).copy()
+            screen.set_clip(None)
 
         if tool == "pencil":
             screen.set_clip(canvasRect)
@@ -252,6 +277,9 @@ while running:
             draw.line(screen, col, (sx, sy), (mx, my), thickness)
             screenCap = screen.subsurface(canvasRect).copy()
             screen.set_clip(None)
+        if evt.type==MOUSEBUTTONUP and canvasRect.collidepoint(mx,my):
+            screenshots=screen.subsurface(canvasRect).copy() #captures the screen
+            undoList.append(screenshots) #appends to undo list
 
     mx, my = mouse.get_pos()  # getting the current mx and my
     mb = mouse.get_pressed()
@@ -399,6 +427,22 @@ while running:
     stamps=["stampOne","stampTwo","stampThree","stampFour","stampFive"]
     try: draw.rect(screen,GREEN,tools[toolList.index(tool)],2,10)
     except: pass
+
+    #Undo and Redo
+    if click and undoRect.collidepoint(mx,my):
+        tool="undo"
+        screen.set_clip(canvasRect)
+        redoList.append(undoList[-1])
+        if len(undoList)>1:
+            undoList.pop()
+        screen.blit(undoList[-1],(canvasRect))
+    if click and redoRect.collidepoint(mx,my):
+        tool="redo"
+        screen.set_clip(canvasRect)
+        if len(redoList)>0: 
+            undoList.append(redoList[-1])
+            redoList.pop()
+        screen.blit(undoList[-1],(canvasRect))
     #ToolTip Text Rendering
     if tool == "pencil":
         screen.blit(link_font.render("Pencil Tool:", True, link_color), (1100, 270))
